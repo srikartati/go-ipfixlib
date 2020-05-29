@@ -17,15 +17,21 @@ import (
 /*func TestExportingProcess_AddRecordToMsg(t *testing.T) {
 	reg := registry.NewIanaRegistry()
 	reg.LoadRegistry()
+
 	ctrl := gomock.NewController(t)
+
 	defer ctrl.Finish()
+
 	mockExporter := exptest.NewMockExportingProcess(ctrl)
+
 	// Create mock template record with two fields
 	mockRecord := testEntities.NewMockRecord(ctrl)
+
 	mockRecord.EXPECT().PrepareRecord().Return(uint16(4), nil)
 	if _, err := mockRecord.PrepareRecord(); err != nil {
 		t.Errorf("Error when preparing records: %v", err)
 	}
+
 	element, err := reg.GetInfoElement("sourceIPv4Address")
 	if err != nil {
 		t.Errorf("Did not find the elements with name sourceIPv4Address")
@@ -34,6 +40,7 @@ import (
 	if err := mockRecord.AddInfoElement(element, nil); err != nil {
 		t.Errorf("Error when adding info element %s: %v", element.Name, err)
 	}
+
 	element, err = reg.GetInfoElement("destinationIPv4Address")
 	if err != nil {
 		t.Errorf("Did not find the elements with name sourceIPv4Address")
@@ -42,10 +49,13 @@ import (
 	if err := mockRecord.AddInfoElement(element, nil); err != nil {
 		t.Errorf("Error when adding info element %s: %v", element.Name, err)
 	}
+
 	mockRecord.EXPECT().AddInfoElement(element, nil).Return(nil)
 	tempRecBuff := mockRecord.GetBuffer()
 	tempRecBytes := tempRecBuff.Bytes()
+
 	mockExporter.EXPECT().AddRecordAndSendMsg(entities.Template, &tempRecBytes).Return(len(tempRecBytes), nil)
+	
 	mockExporter.AddRecordAndSendMsg(entities.Template, &tempRecBytes)
 }*/
 
