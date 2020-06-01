@@ -2,8 +2,9 @@ package registry
 
 import (
 	"fmt"
-	"github.com/srikartati/go-ipfixlib/pkg/entities"
 	"strings"
+
+	"github.com/srikartati/go-ipfixlib/pkg/entities"
 )
 
 const reversePen = uint32(29305)
@@ -99,39 +100,35 @@ func (reg *antreaRegistry) GetReverseInfoElement(name string) (*entities.InfoEle
 	return entities.NewInfoElement(reverseName, ie.ElementId, ie.DataType, reversePen, ie.Len), nil
 }
 
-var nonReversibleIEList = [...]string{
-	"biflowDirection",
-	"collectorIPv4Address",
-	"collectorIPv6Address",
-	"collectorTransportPort",
-	"commonPropertiesId",
-	"exportedMessageTotalCount",
-	"exportedOctetTotalCount",
-	"exportedFlowRecordTotalCount",
-	"exporterIPv4Address",
-	"exporterIPv6Address",
-	"exporterTransportPort",
-	"exportInterface",
-	"exportProtocolVersion",
-	"exportTransportProtocol",
-	"flowId",
-	"flowKeyIndicator",
-	"ignoredPacketTotalCount",
-	"ignoredOctetTotalCount",
-	"notSentFlowTotalCount",
-	"notSentPacketTotalCount",
-	"notSentOctetTotalCount",
-	"observationDomainId",
-	"observedFlowTotalCount",
-	"paddingOctets",
-	"templateId",
+// Non-reversible Information Elements follow Section 6.1 of RFC5103
+var nonReversibleIEs = map[string]bool{
+	"biflowDirection": true,
+	"collectorIPv4Address": true,
+	"collectorIPv6Address": true,
+	"collectorTransportPort": true,
+	"commonPropertiesId": true,
+	"exportedMessageTotalCount": true,
+	"exportedOctetTotalCount": true,
+	"exportedFlowRecordTotalCount": true,
+	"exporterIPv4Address": true,
+	"exporterIPv6Address": true,
+	"exporterTransportPort": true,
+	"exportInterface": true,
+	"exportProtocolVersion": true,
+	"exportTransportProtocol": true,
+	"flowId": true,
+	"flowKeyIndicator": true,
+	"ignoredPacketTotalCount": true,
+	"ignoredOctetTotalCount": true,
+	"notSentFlowTotalCount": true,
+	"notSentPacketTotalCount": true,
+	"notSentOctetTotalCount": true,
+	"observationDomainId": true,
+	"observedFlowTotalCount": true,
+	"paddingOctets": true,
+	"templateId": true,
 }
 
 func isReversible(name string) bool {
-	for _, ieName := range nonReversibleIEList {
-		if ieName == name {
-			return false
-		}
-	}
-	return true
+	return !nonReversibleIEs[name]
 }
