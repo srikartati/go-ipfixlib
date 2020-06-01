@@ -55,7 +55,7 @@ import (
 	tempRecBytes := tempRecBuff.Bytes()
 
 	mockExporter.EXPECT().AddRecordAndSendMsg(entities.Template, &tempRecBytes).Return(len(tempRecBytes), nil)
-	
+
 	mockExporter.AddRecordAndSendMsg(entities.Template, &tempRecBytes)
 }*/
 

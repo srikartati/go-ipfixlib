@@ -11,7 +11,7 @@ const reversePen = uint32(29305)
 
 type Registry interface {
 	LoadRegistry()
-	GetInfoElement(name string)  (*entities.InfoElement, error)
+	GetInfoElement(name string) (*entities.InfoElement, error)
 	GetReverseInfoElement(name string) (*entities.InfoElement, error)
 }
 
@@ -22,7 +22,6 @@ type ianaRegistry struct {
 type antreaRegistry struct {
 	registry map[string]entities.InfoElement
 }
-
 
 func NewIanaRegistry() *ianaRegistry {
 	reg := make(map[string]entities.InfoElement)
@@ -102,31 +101,31 @@ func (reg *antreaRegistry) GetReverseInfoElement(name string) (*entities.InfoEle
 
 // Non-reversible Information Elements follow Section 6.1 of RFC5103
 var nonReversibleIEs = map[string]bool{
-	"biflowDirection": true,
-	"collectorIPv4Address": true,
-	"collectorIPv6Address": true,
-	"collectorTransportPort": true,
-	"commonPropertiesId": true,
-	"exportedMessageTotalCount": true,
-	"exportedOctetTotalCount": true,
+	"biflowDirection":              true,
+	"collectorIPv4Address":         true,
+	"collectorIPv6Address":         true,
+	"collectorTransportPort":       true,
+	"commonPropertiesId":           true,
+	"exportedMessageTotalCount":    true,
+	"exportedOctetTotalCount":      true,
 	"exportedFlowRecordTotalCount": true,
-	"exporterIPv4Address": true,
-	"exporterIPv6Address": true,
-	"exporterTransportPort": true,
-	"exportInterface": true,
-	"exportProtocolVersion": true,
-	"exportTransportProtocol": true,
-	"flowId": true,
-	"flowKeyIndicator": true,
-	"ignoredPacketTotalCount": true,
-	"ignoredOctetTotalCount": true,
-	"notSentFlowTotalCount": true,
-	"notSentPacketTotalCount": true,
-	"notSentOctetTotalCount": true,
-	"observationDomainId": true,
-	"observedFlowTotalCount": true,
-	"paddingOctets": true,
-	"templateId": true,
+	"exporterIPv4Address":          true,
+	"exporterIPv6Address":          true,
+	"exporterTransportPort":        true,
+	"exportInterface":              true,
+	"exportProtocolVersion":        true,
+	"exportTransportProtocol":      true,
+	"flowId":                       true,
+	"flowKeyIndicator":             true,
+	"ignoredPacketTotalCount":      true,
+	"ignoredOctetTotalCount":       true,
+	"notSentFlowTotalCount":        true,
+	"notSentPacketTotalCount":      true,
+	"notSentOctetTotalCount":       true,
+	"observationDomainId":          true,
+	"observedFlowTotalCount":       true,
+	"paddingOctets":                true,
+	"templateId":                   true,
 }
 
 func isReversible(name string) bool {
