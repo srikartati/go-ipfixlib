@@ -120,7 +120,6 @@ func TestExportingProcess_SendingTemplateRecordToLocalTCPServer(t *testing.T) {
 	// 32 is the size of the IPFIX message including all headers
 	assert.Equal(t, 32, bytesSent)
 	assert.Equal(t, tempRecBytes, <-buffCh)
-	assert.Equal(t, "tcp", exporter.connToCollector.LocalAddr().Network())
 	assert.Equal(t, uint32(0), exporter.seqNumber)
 	exporter.CloseConnToCollector()
 }
@@ -184,7 +183,6 @@ func TestExportingProcess_SendingTemplateRecordToLocalUDPServer(t *testing.T) {
 	// 32 is the size of the IPFIX message including all headers
 	assert.Equal(t, 32, bytesSent)
 	assert.Equal(t, tempRecBytes, <-buffCh)
-	assert.Equal(t, "udp", exporter.connToCollector.LocalAddr().Network())
 	assert.Equal(t, uint32(0), exporter.seqNumber)
 	exporter.CloseConnToCollector()
 }
@@ -252,7 +250,6 @@ func TestExportingProcess_SendingDataRecordToLocalTCPServer(t *testing.T) {
 	// 28 is the size of the IPFIX message including all headers (20 bytes)
 	assert.Equal(t, 28, bytesSent)
 	assert.Equal(t, dataRecBytes, <-buffCh)
-	assert.Equal(t, "tcp", exporter.connToCollector.LocalAddr().Network())
 	assert.Equal(t, uint32(1), exporter.seqNumber)
 	exporter.CloseConnToCollector()
 }
@@ -315,7 +312,6 @@ func TestExportingProcess_SendingDataRecordToLocalUDPServer(t *testing.T) {
 	// 28 is the size of the IPFIX message including all headers (20 bytes)
 	assert.Equal(t, 28, bytesSent)
 	assert.Equal(t, dataRecBytes, <-buffCh)
-	assert.Equal(t, "udp", exporter.connToCollector.LocalAddr().Network())
 	assert.Equal(t, uint32(1), exporter.seqNumber)
 	exporter.CloseConnToCollector()
 }
