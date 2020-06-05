@@ -12,9 +12,9 @@ import (
 
 //go:generate mockgen -destination=testing/mock_record.go -package=testing github.com/srikartati/go-ipfixlib/pkg/entities Record
 
-const (
+var (
 	// TODO: Need to think of adding support for multiple templates from a single exporter
-	UniqueTemplateID uint16 = 256
+	UniqueTemplateID uint16 = 0
 )
 
 // This package contains encoding of fields in the record.
@@ -28,32 +28,45 @@ type Record interface {
 	AddInfoElement(element *InfoElement, val interface{}) (uint16, error)
 	// TODO: Functions for multiple elements as well.
 	GetBuffer() *bytes.Buffer
+	IsReadyToSend() bool
 }
 
 // TODO: Create base record struct. Some functions like GetBuffer will be applicable to base record.
 type dataRecord struct {
-	buff bytes.Buffer
-	len  uint16
+	buff       bytes.Buffer
+	len        uint16
+	fieldCount uint16
+	template   uint16
 }
 
-func NewDataRecord() *dataRecord {
-	return &dataRecord{
-		buff: bytes.Buffer{},
-		len:  0,
+func NewDataRecord(id uint16) *dataRecord {
+	if _, err := getTemplateFields(id); err == nil {
+		return &dataRecord{
+			buff:       bytes.Buffer{},
+			len:        0,
+			fieldCount: 0,
+			template:   id,
+		}
 	}
+	log.Fatalf("record: template %d does not exist", id)
+	return nil
 }
 
 type templateRecord struct {
 	buff       bytes.Buffer
 	len        uint16
 	fieldCount uint16
+	template   uint16
 }
 
 func NewTemplateRecord(count uint16) *templateRecord {
+	UniqueTemplateID++
+	log.Printf("Template id: %d", UniqueTemplateID)
 	return &templateRecord{
 		buff:       bytes.Buffer{},
 		len:        0,
 		fieldCount: count,
+		template:   UniqueTemplateID,
 	}
 }
 
@@ -67,6 +80,11 @@ func (d *dataRecord) PrepareRecord() (uint16, error) {
 }
 
 func (d *dataRecord) AddInfoElement(element *InfoElement, val interface{}) (uint16, error) {
+	fields, _ := getTemplateFields(d.template)
+	if _, exists := fields[element.Name]; !exists {
+		log.Fatalf("record: %s does not exist in the template", element.Name)
+	}
+	d.fieldCount++
 	var bytesToAppend []byte
 	if element.Len != VariableLength {
 		bytesToAppend = make([]byte, element.Len)
@@ -207,8 +225,17 @@ func (d *dataRecord) AddInfoElement(element *InfoElement, val interface{}) (uint
 		log.Fatalf("Error in writing field to data record: %v", err)
 		return 0, err
 	}
-
+	if d.IsReadyToSend() {
+		log.Println("The record is ready to be sent.")
+	} else {
+		log.Println("The record is NOT ready to be sent.")
+	}
 	return uint16(bytesWritten), nil
+}
+
+func (d *dataRecord) IsReadyToSend() bool {
+	fields, _ := getTemplateFields(d.template)
+	return d.fieldCount == uint16(len(fields))
 }
 
 func (t *templateRecord) GetBuffer() *bytes.Buffer {
@@ -218,7 +245,7 @@ func (t *templateRecord) GetBuffer() *bytes.Buffer {
 func (t *templateRecord) PrepareRecord() (uint16, error) {
 	// Add Template Record Header
 	header := make([]byte, 4)
-	binary.BigEndian.PutUint16(header[0:2], UniqueTemplateID)
+	binary.BigEndian.PutUint16(header[0:2], t.template)
 	binary.BigEndian.PutUint16(header[2:4], t.fieldCount)
 
 	_, err := t.buff.Write(header)
@@ -231,6 +258,7 @@ func (t *templateRecord) PrepareRecord() (uint16, error) {
 }
 
 func (t *templateRecord) AddInfoElement(element *InfoElement, val interface{}) (uint16, error) {
+	addFieldToTemplate(t.template, element.Name)
 	// val could be used to specify smaller length than default? For now assert it to be nil
 	if val != nil {
 		return 0, fmt.Errorf("AddInfoElement of template record cannot take value: %v. nil is expected", val)
@@ -252,6 +280,15 @@ func (t *templateRecord) AddInfoElement(element *InfoElement, val interface{}) (
 		log.Fatalf("Error in writing field to template record: %v", err)
 		return 0, err
 	}
-
+	if t.IsReadyToSend() {
+		log.Println("The template is ready to be sent.")
+	} else {
+		log.Println("The template is NOT ready to be sent.")
+	}
 	return uint16(bytesWritten), nil
+}
+
+func (t *templateRecord) IsReadyToSend() bool {
+	fields, _ := getTemplateFields(t.template)
+	return t.fieldCount == uint16(len(fields))
 }
