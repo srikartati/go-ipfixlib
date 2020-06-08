@@ -161,6 +161,13 @@ func (ep *ExportingProcess) addTemplate(names ...string) {
 	log.Printf("Template ID: %d", uniqueTemplateID)
 }
 
+func (ep *ExportingProcess) deleteTemplate(id uint16) {
+	if _, exist := ep.templates[id]; !exist {
+		log.Fatalf("process: template %d does not exist in exporting process", id)
+	}
+	delete(ep.templates, id)
+}
+
 func (ep *ExportingProcess) sanityCheck(rec entities.Record) {
 	template := rec.GetTemplateID()
 	if _, exist := ep.templates[template]; !exist {
