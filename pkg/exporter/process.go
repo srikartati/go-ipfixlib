@@ -12,7 +12,9 @@ import (
 
 //go:generate mockgen -destination=testing/mock_process.go -package=testing github.com/srikartati/go-ipfixlib/pkg/exporter ExportingProcess
 
-// 1. Tested one ExportingProcess process per exporter. Can support multiple collector scenario by
+var uniqueTemplateID uint16 = 255
+
+// 1. Tested one exportingProcess process per exporter. Can support multiple collector scenario by
 //    creating different instances of exporting process. Need to be tested
 // 2. Only one observation point per observation domain is supported,
 //    so observation point ID not defined.
@@ -25,6 +27,7 @@ type ExportingProcess struct {
 	seqNumber       uint32
 	set             *entities.Set
 	msg             *entities.MsgBuffer
+	templates       map[uint16][]string
 }
 
 func InitExportingProcess(collectorAddr net.Addr, obsID uint32) (*ExportingProcess, error) {
@@ -40,10 +43,16 @@ func InitExportingProcess(collectorAddr net.Addr, obsID uint32) (*ExportingProce
 		seqNumber:       0,
 		set:             entities.NewSet(msgBuffer.GetMsgBuffer()),
 		msg:             msgBuffer,
+		templates:       make(map[uint16][]string),
 	}, nil
 }
 
-func (ep *ExportingProcess) AddRecordAndSendMsg(recType entities.ContentType, recBuffer *[]byte) (int, error) {
+func (ep *ExportingProcess) AddRecordAndSendMsg(recType entities.ContentType, rec entities.Record) (int, error) {
+	ep.sanityCheck(rec)
+	recBuff := rec.GetBuffer()
+	recBytes := recBuff.Bytes()
+	recBuffer := &recBytes
+
 	msgBuffer := ep.msg.GetMsgBuffer()
 	var bytesSent int
 	// Check if message is exceeding the limit with new record
@@ -64,10 +73,10 @@ func (ep *ExportingProcess) AddRecordAndSendMsg(recType entities.ContentType, re
 	}
 	// Check set buffer length and type change to create new set in the message
 	if ep.set.GetBuffLen() == 0 {
-		ep.set.CreateNewSet(recType)
+		ep.set.CreateNewSet(recType, uniqueTemplateID)
 	} else if ep.set.GetSetType() != recType {
 		ep.set.FinishSet()
-		ep.set.CreateNewSet(recType)
+		ep.set.CreateNewSet(recType, uniqueTemplateID)
 	}
 	// Write the record to the set
 	err := ep.set.WriteRecordToSet(recBuffer)
@@ -138,4 +147,27 @@ func (ep *ExportingProcess) sendMsg() (int, error) {
 func (ep *ExportingProcess) CloseConnToCollector() {
 	ep.connToCollector.Close()
 	return
+}
+
+// Leaving this for now to get better ideas on how to use mocks for testing in this scenario.
+func funcToTestAddRecordMsg(ep ExportingProcess, recType entities.ContentType, rec entities.Record) (int, error) {
+	return ep.AddRecordAndSendMsg(recType, rec)
+}
+
+func (ep *ExportingProcess) addTemplate(names ...string) {
+	uniqueTemplateID++
+	templates := ep.templates
+	templates[uniqueTemplateID] = names
+	log.Printf("Template ID: %d", uniqueTemplateID)
+}
+
+func (ep *ExportingProcess) sanityCheck(rec entities.Record) {
+	template := rec.GetTemplateID()
+	if _, exist := ep.templates[template]; !exist {
+		log.Fatalf("process: template %d does not exist in exporting process", template)
+	}
+	templateFieldCount := len(ep.templates[template])
+	if rec.GetFieldCount() != uint16(templateFieldCount) {
+		log.Fatalf("process: field count of template %d does not match declared value", template)
+	}
 }
