@@ -25,43 +25,55 @@ type Record interface {
 	GetBuffer() *bytes.Buffer
 	GetTemplateID() uint16
 	GetFieldCount() uint16
+	GetTemplateFields() []string
 }
 
 // TODO: Create base record struct. Some functions like GetBuffer will be applicable to base record.
-type dataRecord struct {
+type baseRecord struct {
 	buff       bytes.Buffer
 	len        uint16
 	fieldCount uint16
 	template   uint16
+	Record
+}
+
+type dataRecord struct {
+	*baseRecord
 }
 
 func NewDataRecord(id uint16) *dataRecord {
 	return &dataRecord{
-		buff:       bytes.Buffer{},
-		len:        0,
-		fieldCount: 0,
-		template:   id,
+		&baseRecord{buff: bytes.Buffer{}, len: 0, fieldCount: 0, template: id},
 	}
 }
 
 type templateRecord struct {
-	buff       bytes.Buffer
-	len        uint16
-	fieldCount uint16
-	template   uint16
+	*baseRecord
+	templateList []string
 }
 
 func NewTemplateRecord(count uint16, id uint16) *templateRecord {
 	return &templateRecord{
-		buff:       bytes.Buffer{},
-		len:        0,
-		fieldCount: count,
-		template:   id,
+		&baseRecord{
+			buff:       bytes.Buffer{},
+			len:        0,
+			fieldCount: count,
+			template:   id,
+		},
+		make([]string, 0),
 	}
 }
 
-func (d *dataRecord) GetBuffer() *bytes.Buffer {
-	return &d.buff
+func (b *baseRecord) GetBuffer() *bytes.Buffer {
+	return &b.buff
+}
+
+func (b *baseRecord) GetTemplateID() uint16 {
+	return b.template
+}
+
+func (b *baseRecord) GetFieldCount() uint16 {
+	return b.fieldCount
 }
 
 func (d *dataRecord) PrepareRecord() (uint16, error) {
@@ -215,18 +227,6 @@ func (d *dataRecord) AddInfoElement(element *InfoElement, val interface{}) (uint
 	return uint16(bytesWritten), nil
 }
 
-func (d *dataRecord) GetTemplateID() uint16 {
-	return d.template
-}
-
-func (d *dataRecord) GetFieldCount() uint16 {
-	return d.fieldCount
-}
-
-func (t *templateRecord) GetBuffer() *bytes.Buffer {
-	return &t.buff
-}
-
 func (t *templateRecord) PrepareRecord() (uint16, error) {
 	// Add Template Record Header
 	header := make([]byte, 4)
@@ -264,14 +264,10 @@ func (t *templateRecord) AddInfoElement(element *InfoElement, val interface{}) (
 		log.Fatalf("Error in writing field to template record: %v", err)
 		return 0, err
 	}
-
+	t.templateList = append(t.templateList, element.Name)
 	return uint16(bytesWritten), nil
 }
 
-func (t *templateRecord) GetTemplateID() uint16 {
-	return t.template
-}
-
-func (t *templateRecord) GetFieldCount() uint16 {
-	return t.fieldCount
+func (t *templateRecord) GetTemplateFields() []string {
+	return t.templateList
 }

@@ -48,15 +48,17 @@ func InitExportingProcess(collectorAddr net.Addr, obsID uint32) (*ExportingProce
 }
 
 func (ep *ExportingProcess) AddRecordAndSendMsg(recType entities.ContentType, rec entities.Record) (int, error) {
-	ep.sanityCheck(rec)
-	recBuff := rec.GetBuffer()
-	recBytes := recBuff.Bytes()
-	recBuffer := &recBytes
+	if recType == entities.Template {
+		ep.addTemplate(rec.GetTemplateFields())
+	} else if recType == entities.Data {
+		ep.sanityCheck(rec)
+	}
+	recBytes := rec.GetBuffer().Bytes()
 
 	msgBuffer := ep.msg.GetMsgBuffer()
 	var bytesSent int
 	// Check if message is exceeding the limit with new record
-	if uint16(msgBuffer.Len()+len(*recBuffer)) > entities.MaxTcpSocketMsgSize {
+	if uint16(msgBuffer.Len()+len(recBytes)) > entities.MaxTcpSocketMsgSize {
 		ep.set.FinishSet()
 		b, err := ep.sendMsg()
 		if err != nil {
@@ -79,7 +81,7 @@ func (ep *ExportingProcess) AddRecordAndSendMsg(recType entities.ContentType, re
 		ep.set.CreateNewSet(recType, uniqueTemplateID)
 	}
 	// Write the record to the set
-	err := ep.set.WriteRecordToSet(recBuffer)
+	err := ep.set.WriteRecordToSet(&recBytes)
 	if err != nil {
 		log.Fatalf("Error in writing record to the current set: %v", err)
 		return bytesSent, err
@@ -154,7 +156,7 @@ func funcToTestAddRecordMsg(ep ExportingProcess, recType entities.ContentType, r
 	return ep.AddRecordAndSendMsg(recType, rec)
 }
 
-func (ep *ExportingProcess) addTemplate(names ...string) {
+func (ep *ExportingProcess) addTemplate(names []string) {
 	uniqueTemplateID++
 	templates := ep.templates
 	templates[uniqueTemplateID] = names
@@ -175,6 +177,6 @@ func (ep *ExportingProcess) sanityCheck(rec entities.Record) {
 	}
 	templateFieldCount := len(ep.templates[template])
 	if rec.GetFieldCount() != uint16(templateFieldCount) {
-		log.Fatalf("process: field count of template %d does not match declared value", template)
+		log.Fatalf("process: field count of data does not match template %d", template)
 	}
 }

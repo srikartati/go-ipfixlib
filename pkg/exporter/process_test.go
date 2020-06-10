@@ -46,8 +46,6 @@ func TestExportingProcess_SendingTemplateRecordToLocalTCPServer(t *testing.T) {
 	t.Logf("Created exporter connecting to local server with address: %s", listener.Addr().String())
 
 	// Add template to exporting process
-	exporter.addTemplate("sourceIPv4Address","destinationIPv4Address")
-
 	reg := registry.NewIanaRegistry()
 	reg.LoadRegistry()
 
@@ -114,8 +112,6 @@ func TestExportingProcess_SendingTemplateRecordToLocalUDPServer(t *testing.T) {
 	t.Logf("Created exporter connecting to local server with address: %s", conn.LocalAddr().String())
 
 	// Add template to exporting process
-	exporter.addTemplate("sourceIPv4Address","destinationIPv4Address")
-
 	reg := registry.NewIanaRegistry()
 	reg.LoadRegistry()
 
@@ -183,9 +179,10 @@ func TestExportingProcess_SendingDataRecordToLocalTCPServer(t *testing.T) {
 	}
 	t.Logf("Created exporter connecting to local server with address: %s", listener.Addr().String())
 
-	// Add data to exporting process
-	exporter.addTemplate("sourceIPv4Address", "destinationIPv4Address")
 
+	// [Only for testing] Ensure corresponding template exists in the exporting process before sending data
+	exporter.addTemplate([]string{"sourceIPv4Address", "destinationIPv4Address"})
+	// Add data to exporting process
 	reg := registry.NewIanaRegistry()
 	reg.LoadRegistry()
 
@@ -249,9 +246,9 @@ func TestExportingProcess_SendingDataRecordToLocalUDPServer(t *testing.T) {
 	}
 	t.Logf("Created exporter connecting to local server with address: %s", conn.LocalAddr().String())
 
+	// [Only for testing] Ensure corresponding template exists in the exporting process before sending data
+	exporter.addTemplate([]string{"sourceIPv4Address", "destinationIPv4Address"})
 	// Add data to exporting process
-	exporter.addTemplate("sourceIPv4Address", "destinationIPv4Address")
-
 	reg := registry.NewIanaRegistry()
 	reg.LoadRegistry()
 
