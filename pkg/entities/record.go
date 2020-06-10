@@ -25,7 +25,7 @@ type Record interface {
 	GetBuffer() *bytes.Buffer
 	GetTemplateID() uint16
 	GetFieldCount() uint16
-	GetTemplateFields() []string
+	GetTemplateFields() *[]string
 }
 
 // TODO: Create base record struct. Some functions like GetBuffer will be applicable to base record.
@@ -268,6 +268,6 @@ func (t *templateRecord) AddInfoElement(element *InfoElement, val interface{}) (
 	return uint16(bytesWritten), nil
 }
 
-func (t *templateRecord) GetTemplateFields() []string {
-	return t.templateList
+func (t *templateRecord) GetTemplateFields() *[]string {
+	return &t.templateList
 }

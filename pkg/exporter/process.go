@@ -156,10 +156,10 @@ func funcToTestAddRecordMsg(ep ExportingProcess, recType entities.ContentType, r
 	return ep.AddRecordAndSendMsg(recType, rec)
 }
 
-func (ep *ExportingProcess) addTemplate(names []string) {
+func (ep *ExportingProcess) addTemplate(names *[]string) {
 	uniqueTemplateID++
 	templates := ep.templates
-	templates[uniqueTemplateID] = names
+	templates[uniqueTemplateID] = *names
 	log.Printf("Template ID: %d", uniqueTemplateID)
 }
 
