@@ -1,8 +1,8 @@
 module github.com/srikartati/go-ipfixlib
 
-go 1.13
+go 1.14
 
 require (
 	github.com/golang/mock v1.4.3
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.1
 )

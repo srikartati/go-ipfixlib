@@ -10,8 +10,6 @@ import (
 	"github.com/srikartati/go-ipfixlib/pkg/entities"
 )
 
-//go:generate mockgen -destination=testing/mock_process.go -package=testing github.com/srikartati/go-ipfixlib/pkg/exporter ExportingProcess
-
 // 1. Tested one ExportingProcess process per exporter. Can support multiple collector scenario by
 //    creating different instances of exporting process. Need to be tested
 // 2. Only one observation point per observation domain is supported,

@@ -199,7 +199,7 @@ func (d *dataRecord) AddInfoElement(element *InfoElement, val interface{}) (uint
 			bytesToAppend = append(bytesToAppend, []byte(v)...)
 		}
 	default:
-		return 0, fmt.Errorf("This API supports only valid information elements with datatypes given in RFC7011")
+		return 0, fmt.Errorf("API supports only valid information elements with datatypes given in RFC7011")
 	}
 
 	bytesWritten, err := d.buff.Write(bytesToAppend)
