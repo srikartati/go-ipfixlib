@@ -91,18 +91,32 @@ func (mr *MockRecordMockRecorder) GetFieldCount() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFieldCount", reflect.TypeOf((*MockRecord)(nil).GetFieldCount))
 }
 
-// GetTemplateFields mocks base method
-func (m *MockRecord) GetTemplateFields() *[]string {
+// GetMinDataRecordLen mocks base method
+func (m *MockRecord) GetMinDataRecordLen() uint16 {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTemplateFields")
-	ret0, _ := ret[0].(*[]string)
+	ret := m.ctrl.Call(m, "GetMinDataRecordLen")
+	ret0, _ := ret[0].(uint16)
 	return ret0
 }
 
-// GetTemplateFields indicates an expected call of GetTemplateFields
-func (mr *MockRecordMockRecorder) GetTemplateFields() *gomock.Call {
+// GetMinDataRecordLen indicates an expected call of GetMinDataRecordLen
+func (mr *MockRecordMockRecorder) GetMinDataRecordLen() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTemplateFields", reflect.TypeOf((*MockRecord)(nil).GetTemplateFields))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMinDataRecordLen", reflect.TypeOf((*MockRecord)(nil).GetMinDataRecordLen))
+}
+
+// GetTemplateElements mocks base method
+func (m *MockRecord) GetTemplateElements() []*entities.InfoElement {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTemplateElements")
+	ret0, _ := ret[0].([]*entities.InfoElement)
+	return ret0
+}
+
+// GetTemplateElements indicates an expected call of GetTemplateElements
+func (mr *MockRecordMockRecorder) GetTemplateElements() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTemplateElements", reflect.TypeOf((*MockRecord)(nil).GetTemplateElements))
 }
 
 // GetTemplateID mocks base method
